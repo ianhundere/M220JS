@@ -2,7 +2,7 @@ import { ObjectId } from 'bson';
 
 let movies;
 let mflix;
-const DEFAULT_SORT = [ [ 'tomatoes.viewer.numReviews', -1 ] ];
+const DEFAULT_SORT = [['tomatoes.viewer.numReviews', -1]];
 
 export default class MoviesDAO {
 	static async injectDB(conn) {
@@ -76,7 +76,7 @@ export default class MoviesDAO {
 	static textSearchQuery(text) {
 		const query = { $text: { $search: text } };
 		const meta_score = { $meta: 'textScore' };
-		const sort = [ [ 'score', meta_score ] ];
+		const sort = [['score', meta_score]];
 		const project = { score: meta_score };
 
 		return { query, project, sort };
@@ -135,7 +135,7 @@ export default class MoviesDAO {
 		}
 		const matchStage = { $match: filters };
 		const sortStage = { $sort: { 'tomatoes.viewer.rating': -1 } };
-		const countingPipeline = [ matchStage, sortStage, { $count: 'count' } ];
+		const countingPipeline = [matchStage, sortStage, { $count: 'count' }];
 		const skipStage = { $skip: moviesPerPage * page };
 		const limitStage = { $limit: moviesPerPage };
 		const facetStage = {
@@ -144,7 +144,7 @@ export default class MoviesDAO {
 					{
 						$bucket: {
 							groupBy: '$runtime',
-							boundaries: [ 0, 60, 90, 120, 180 ],
+							boundaries: [0, 60, 90, 120, 180],
 							default: 'other',
 							output: {
 								count: { $sum: 1 }
@@ -156,7 +156,7 @@ export default class MoviesDAO {
 					{
 						$bucket: {
 							groupBy: '$metacritic',
-							boundaries: [ 0, 50, 70, 90, 100 ],
+							boundaries: [0, 50, 70, 90, 100],
 							default: 'other',
 							output: {
 								count: { $sum: 1 }
@@ -297,7 +297,7 @@ export default class MoviesDAO {
 					$lookup: {
 						from: 'comments',
 						let: { id: '$_id' },
-						pipeline: [ { $match: { $expr: { $eq: [ '$movie_id', '$$id' ] } } }, { $sort: { date: -1 } } ],
+						pipeline: [{ $match: { $expr: { $eq: ['$movie_id', '$$id'] } } }, { $sort: { date: -1 } }],
 						as: 'comments'
 					}
 				}
@@ -313,8 +313,9 @@ export default class MoviesDAO {
 
 			// TODO Ticket: Error Handling
 			// Catch the InvalidId error by string matching, and then handle it.
-			console.error(`Something went wrong in getMovieByID: ${e}`);
-			throw e;
+			console.error(`Something went wrong in getMovieByID: ${e.toString}`);
+			// throw e;
+			return null
 		}
 	}
 }
